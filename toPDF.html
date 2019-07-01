@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>provApp</title>
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+
+    <div class="body-wrapper">
+      <div class="body-item top"> 
+        <span class="h1">Kurs </span><span class="h3"> Grupp</span>
+      </div>
+      <div class="body-item left"></div>
+      <div class="body-item right"></div>
+    </div>
+
+
+
+
+<!--
+  En egen html mall för när man skall spara till pdf - med egen css. Detta fönster syns aldrig för användaren, utan arbetar i bakgrunden.
+
+  I javascriptet loopar vi sedan över alla selections ( [alla elever, alla prov], [alla elever, prov1], [alla elever, prov2], ... [elev1, alla prov], [elev1, prov1], ... osv) och anropar printtopdf.
+
+  Att göra detta för alla kurser borde vara lätt (använd bara userData.folder - som förhoppningsvis är tillgänglig även för ett nytt browserwindow). Förhoppningsvis är det också lätt att skicka vidare variabler till detta browserwindow från det huvudsakliga, då kan man göra detta bara för en kurs.
+
+  Använd ipc
+
+  I index.html ha en button (exportera till pdf) och i index.js
+
+  const { ipcRenderer } = require('electron')
+  
+  // skicka meddelande till main.js om vilken kurs som skall exporteras till pdf
+  button.on('click', ipcRenderer.send('asynchronous-message', 'kurs1.json') )
+
+  // när exporteringen är klar kommer main.js skicka ett svar (typ working on it, success eller failure)
+  ipcRenderer.on('asynchronous-reply', (event, arg) => {
+    kod för vad som skall göras med svaret (arg)
+  })
+
+  I main.js :
+  
+  const { ipcMain } = require('electron')
+
+  // ta emot meddelande från index.js och skicka vidare till ( behövs detta steg? )
+  ipcMain.on('asynchronous-message', (event, arg) => {
+    ipcMain.send('asynchronous-message', arg)
+    event.reply('asynchronous-reply', 'working on it')
+  })
+
+  I toPDF.js
+
+  // Ta emot meddelandet och börja printa
+  ipsRenderer.on(......)
+
+  
+
+
+
+
+-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Modal -->
+    <div id="modal-background">
+      <div class="modal-box">
+        <span id="modal-close">&times;</span>
+        <div id="modal-title" class="h2"></div>
+        <div id="modal-content"></div>
+      </div>
+    </div>
+
+
+
+
+    <!-- You can also require other files to run in this process -->
+    <script src="./renderer.js"></script>
+    <script src="./index.js"></script>
+  </body>
+</html>

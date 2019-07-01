@@ -1,7 +1,7 @@
 {
-  "name": "electron-quick-start",
+  "name": "provData",
   "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "description": "A small app for handling data from math exams in the higher Swedish education form.",
   "main": "main.js",
   "scripts": {
     "start": "electron ."
@@ -17,6 +17,8 @@
   "author": "GitHub",
   "license": "CC0-1.0",
   "devDependencies": {
+    "d3": "^5.9.4",
     "electron": "^5.0.5"
-  }
+  },
+  "dependencies": {}
 }

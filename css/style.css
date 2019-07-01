@@ -1,0 +1,392 @@
+@font-face {
+    font-family: "Soleto";
+    src: url("../fonts/Soleto.ttf");
+}
+@font-face {
+    font-family: "Soleto-Bold";
+    src: url("../fonts/Soleto-Bold.ttf");
+}
+@font-face {
+    font-family: "Soleto-Thin";
+    src: url("../fonts/Soleto-Thin.ttf");
+}
+
+
+:root {
+  --color-mag: #dd0890;
+  --color-uv: #4b0082;
+  --color-gray: #222222;
+  --color-gray-medium: rgba(34,34,34,0.25);
+  --color-gray-light: #f0f0f0;
+}
+
+body {
+	/*background: #4b0082;*/
+	background-color: var(--color-uv);
+	font-family: "Soleto";
+	user-select: none;
+}
+
+body h1 {
+	font-size: 2.5em;
+	font-family: "Soleto-Bold";
+}
+body h2 {
+	font-size: 1.5em;
+	font-family: "Soleto-Bold";
+}
+body h3 {
+	font-size: 1.0em;
+	font-family: "Soleto-Thin";
+}
+
+.h1 {
+	font-size: 2.5em;
+	font-family: "Soleto-Bold";
+}
+.h2 {
+	font-size: 1.5em;
+	font-family: "Soleto-Bold";
+}
+.h3 {
+	font-size: 1.5em;
+	font-family: "Soleto-Thin";
+}
+.h4 {
+	font-size: 1em;
+	font-family: "Soleto-Bold";
+}
+
+.body-wrapper {
+	margin: 1em;
+	margin-top: 2em;
+	/*height: 100vh;*/
+	display: grid;
+	grid-gap: 1em;
+	grid-template-areas:
+		"top"
+		"left"
+		"right";
+	grid-template-columns: 1fr 2fr;
+	grid-template-rows: 1fr 5fr;
+	grid-template-areas:
+		"top top"
+		"left right";
+}
+.body-item {
+	background-color: var(--color-gray-light);
+	border-radius: 0.25em;
+}
+.top {
+	grid-area: top;
+	padding: 1.5em;
+}
+.left {
+	grid-area: left;
+}
+.right {
+	grid-area: right;
+}
+.left-grid {
+	/*border-style: dotted;*/
+	display: grid;
+	grid-gap: 1em;
+	grid-template-areas:
+		"elever-title"
+		"elever-list"
+		"prov-title"
+		"prov-list";
+	grid-template-rows: 1fr 8fr 1fr 4fr;
+	grid-template-areas:
+		"elever-title"
+		"elever-list"
+		"prov-title"
+		"prov-list";
+}
+.elever-title {
+	grid-area: elever-title;
+	background-color: var(--color-gray-medium);
+	/*background: linear-gradient(to right, #dd0890, #4b0082);*/
+	/*color: white;*/
+	border-top-right-radius: 0.25em;
+	border-top-left-radius: 0.25em;
+	border-bottom-style: dotted;
+	border-width: 1pt;
+	padding: 0.15em 0.5em 0.15em;
+}
+.elever-list {
+	grid-area: elever-list;
+}
+.prov-title {
+	grid-area: prov-title;
+	background-color: var(--color-gray-medium);
+	border-top-style: dotted;
+	border-bottom-style: dotted;
+	/*color:white;*/
+	border-width: 1pt;
+	padding: 0.15em 0.5em 0.15em;
+}
+.prov-list {
+	grid-area: prov-list;
+}
+
+.right-grid {
+	/*border-style: dotted;*/
+	display: grid;
+	grid-gap: 0em;
+	grid-template-areas:
+		"tools"
+		"E"
+		"C"
+		"A"
+		"B"
+		"P"
+		"PL"
+		"M"
+		"R"
+		"K"
+		"EB"
+		"EP"
+		"EPL"
+		"EM"
+		"ER"
+		"EK"
+		"CB"
+		"CP"
+		"CPL"
+		"CM"
+		"CR"
+		"CK"
+		"AB"
+		"AP"
+		"APL"
+		"AM"
+		"AR"
+		"AK";
+	grid-template-rows: 1fr 2.5fr 2.5fr 2.5fr 2.5fr 2.5fr 2.5fr;
+	grid-template-columns: 1fr 2fr 2fr 2fr;
+	grid-template-areas:
+		"tools E C A"
+		"B EB CB AB"
+		"P EP CP AP"
+		"PL EPL CPL APL"
+		"M EM CM AM"
+		"R ER CR AR"
+		"K EK CK AK";
+}
+.niva {
+	background-color: var(--color-gray-medium);
+	font-family: "Soleto-Bold";
+	font-size: 1em;
+	text-align: center;
+	border-bottom-style: dotted;
+	border-width: 1pt;
+	padding: 0.15em 0.5em 0.15em;
+}
+.formaga {
+	/*background-color: var(--color-gray-medium);*/
+	font-family: "Soleto-Thin";
+	font-size: 1.5em;
+	text-align: center;	
+	border-bottom-style: dotted;
+	border-right-style: dotted;
+	border-width: 1pt;
+}
+.formaga:n-last {
+	border-bottom-style: none;
+}
+.tools {
+	grid-area: tools;
+}
+.E {
+	grid-area: E;
+}
+.C {
+	grid-area: C;
+}
+.A {
+	grid-area: A;
+}
+.B {
+	grid-area: B;
+	background-color: white;
+}
+.P {
+	grid-area: P;
+}
+.PL {
+	grid-area: PL;
+	background-color: white;
+}
+.M {
+	grid-area: M;
+}
+.R {
+	grid-area: R;
+	background-color: white;
+}
+.K {
+	grid-area: K;
+}
+.matris-element {
+	border-bottom-style: dotted;
+	border-width: 1pt;
+	border-right-style: dotted;
+}
+.matris-element:nth-child(odd) {
+	background-color: white;
+}
+
+
+
+
+.input-list {
+    background-attachment: local;
+    background-image:
+    linear-gradient(to right, #f2f2f2 10px, transparent 10px),
+    linear-gradient(to left, #f2f2f2 10px, transparent 10px),
+    repeating-linear-gradient(#f2f2f2, #f2f2f2 30px, #e1e1e1 30px, #e1e1e1 32px, #f2f2f2 32px);
+    line-height: 31px;
+    width: 90%;
+    resize: none;
+    font-size: 0.75em;
+    font-family: 'Open Sans', sans-serif;
+    outline: none ! important;
+    padding: 8px 10px;
+    border: none;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Modal */
+
+#modal-background {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(75,0,130); /* Fallback color */
+  background-color: rgba(75,0,130,0.4); /* Black w/ opacity */
+}
+.modal-box {
+	  background-color: var(--color-gray-light);
+	  margin: 25% auto; /* 15% from the top and centered */
+	  padding: 20px;
+	  /*padding-top: 5px;*/
+	  border: 1px dotted rgb(75,0,130);
+	  width: 80%; /* Could be more or less, depending on screen size */
+	  /*height: 80%;*/
+	  border-radius: 1em;
+ }
+#modal-title {
+	text-align: center;
+}
+#modal-content {
+	margin-left: 3em;
+	margin-right: 3em;
+ /* The Close Button */
+}
+#modal-close {
+	float: right;
+  	color: var(--bg-gray);
+  	float: right;
+  	font-size: 28px;
+  	font-weight: bold;
+}
+#modal-close:hover,
+#modal-close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+
+/* KursModal*/
+
+input {
+	background-color: #f2f2f2;
+	font-size: 1em;
+    font-family: 'Soleto', sans-serif;
+    font-weight: bolder;
+    outline: none ! important;
+    width: 30%;
+    margin-right: 10px;
+    padding: 8px 10px;
+	resize: none;
+	border: none;
+	border-bottom-style: solid;
+	border-width: 2pt;
+	border-color: #e1e1e1;
+}
+.button {
+	border-radius: 5pt;
+	padding: 5pt 10pt;
+	border-style: dotted;
+	border-width: 1pt;
+}
+
+
+
+/* visualization styles*/
+.res0 {
+	shape-rendering: auto;
+	cursor: pointer;
+	stroke-dasharray: none;
+	stroke: none;
+	fill: #e1e1e1;
+}
+.res1 {
+	shape-rendering: auto;
+	cursor: pointer;
+	stroke-dasharray: 1;
+	stroke: gray;
+	fill: gold;
+}
+.res2 {
+	shape-rendering: auto;
+	cursor: pointer;
+	stroke-dasharray: none;
+	stroke: black;
+	fill: #2ECC71;
+}
+.uppgText {
+	font-size: 6pt;
+	font-weight: lighter;
+	shape-rendering: auto;
+	fill: black;
+	text-anchor: middle;
+	alignment-baseline: central;
+	/*visibility: hidden;*/
+}
+.uppgText .off {
+	visibility: hidden;
+}
+.tooltip {
+	font-size: 8pt;
+	font-weight: lighter;
+	background-color: white;
+	color: black;
+	border-radius: 5pt;
+	padding: 5pt;
+	border-style: dotted;
+	border-width: 1pt;
+	width: 200px;
+	max-height: 40px;
+	/*white-space: nowrap;*/
+	overflow-y: hidden;
+	/*text-overflow: ellipsis;*/
+}

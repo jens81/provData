@@ -2,15 +2,86 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Hello World!</title>
+    <title>provApp</title>
+    <link rel="stylesheet" href="css/style.css">
   </head>
   <body>
-    <h1>Hello World!</h1>
-    We are using Node.js <span id="node-version"></span>,
-    Chromium <span id="chrome-version"></span>,
-    and Electron <span id="electron-version"></span>.
+
+    <div class="body-wrapper">
+      <div class="body-item top"> 
+        <span class="h2" id="kurs-namn">Välj kurs </span><span class="h3"> | </span><span class="h3" id="grupp-namn"></span>
+      </div>
+      <div class="body-item left">
+        <div class="left-grid">
+          <div class="elever-title"> 
+            <div class="h4" id="elever">
+              Elever
+              <!--
+              <div id="add-elev-menu"> 
+                Elevernas namn:<br> 
+                <span style="font-size: 0.5em"> Det går att kopiera från spreadsheet och klistra in
+                </span>
+                <br> <textarea id="elev-namn-input" class="inputList" rows=3></textarea><br> <a id="add-elev-button" class="button"> Lägg till</a>
+              </div> -->
+            </div>
+          </div>
+          <div class="elever-list" id="elever-list">  </div>
+          <div class="prov-title h4" id="prov"> Prov </div>
+          <div class="prov-list" id="prov-list"> </div>
+        </div>
+      </div>
+      <div class="body-item right">
+        <div class="right-grid">
+          <div class="niva tools"><span id="lock"></span><span id="look"></span></div>
+          <div class="niva E">E</div>
+          <div class="niva C">C</div>
+          <div class="niva A">A</div>
+          <div class="formaga B">B</div>
+          <div class="formaga P">P</div>
+          <div class="formaga PL">PL</div>
+          <div class="formaga M">M</div>
+          <div class="formaga R">R</div>
+          <div class="formaga K">K</div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Modal -->
+    <div id="modal-background">
+      <div class="modal-box">
+        <span id="modal-close">&times;</span>
+        <div id="modal-title" class="h2"></div>
+        <div id="modal-content"></div>
+      </div>
+    </div>
+
+
+
 
     <!-- You can also require other files to run in this process -->
     <script src="./renderer.js"></script>
+    <script src="./index.js"></script>
   </body>
 </html>

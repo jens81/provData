@@ -10,10 +10,14 @@ function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 800,
-    height: 600,
+    height: 700,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
-    }
+      preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: true
+    },
+    titleBarStyle: 'hiddenInset',
+    frame: false,
+    title: 'provData'
   })
 
   // and load the index.html of the app.
