@@ -255,6 +255,7 @@ body h3 {
 	border-bottom-style: dotted;
 	border-width: 1pt;
 	border-right-style: dotted;
+	padding: 5pt;
 }
 .matris-element:nth-child(odd) {
 	background-color: white;

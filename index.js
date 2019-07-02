@@ -25,11 +25,14 @@ for (i in nivaer) {
 state.selection = {
 	elev: {}, // hela elevobjektet
 	prov: [], // provlista (erhålls från funktion, se nedersta delen av filen)
+	listview: false, // för lista istället för matris
+	unlocked: false,
 	uppg: [], // filtrerade uppgifter {id: 0, nr: '', niva: '', formaga: '', res: 0} osv.
 	nMax: 0,
 	matris: [], // Ett element för varje niva/formaga {niva: '', formaga: '', uppgifter = [] } där uppgifter är filtrerat efter elev, prov och niva/formaga
 	update: function() {
 		this.uppg = this.elev.uppg.filter( uppg => this.prov.includes(uppg.prov) );
+		this.unlocked = ((this.prov.length==1)&&(this.elev.namn!='Alla elever'));
 		let nMax = 0;
 		let matris = [];
 		for (i in nivaformagor) {
@@ -97,7 +100,6 @@ function updateKurs() {
 	updateProv()
 	updateMatris()
 };
-
 function updateElever() {
 	let eleverList = d3.select('#elever-list');
 	let elever = eleverList.selectAll('.list-item').data(state.kurs.elever);
@@ -120,7 +122,6 @@ function updateElever() {
 	// Exit
 	elever.exit().remove();
 };
-
 function updateProv() {
 	let prov = [];
 	if (state.kurs.elever.length>=1) {
@@ -151,8 +152,6 @@ function updateProv() {
 	// Exit
 	proven.exit().remove();
 };
-
-
 function updateMatris() {
 	let matrisElement = d3.select('.right-grid').selectAll('.matris-element').data(state.selection.matris);
 	// Update
