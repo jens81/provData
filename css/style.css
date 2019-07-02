@@ -16,6 +16,7 @@
   --color-mag: #dd0890;
   --color-uv: #4b0082;
   --color-gray: #222222;
+  --color-gray-dark: rgba(34,34,34,0.7);
   --color-gray-medium: rgba(34,34,34,0.25);
   --color-gray-light: #f0f0f0;
 }
@@ -81,6 +82,12 @@ body h3 {
 	grid-area: top;
 	padding: 1.5em;
 }
+#kurs-namn {
+	color: var(--color-gray-dark);
+}
+#kurs-namn:hover {
+	color: black;
+}
 .left {
 	grid-area: left;
 }
@@ -90,7 +97,7 @@ body h3 {
 .left-grid {
 	/*border-style: dotted;*/
 	display: grid;
-	grid-gap: 1em;
+	grid-gap: 0em;
 	grid-template-areas:
 		"elever-title"
 		"elever-list"
@@ -112,7 +119,7 @@ body h3 {
 	border-top-left-radius: 0.25em;
 	border-bottom-style: dotted;
 	border-width: 1pt;
-	padding: 0.15em 0.5em 0.15em;
+	padding: 0.15em 1em 0.15em;
 }
 .elever-list {
 	grid-area: elever-list;
@@ -124,11 +131,27 @@ body h3 {
 	border-bottom-style: dotted;
 	/*color:white;*/
 	border-width: 1pt;
-	padding: 0.15em 0.5em 0.15em;
+	padding: 0.15em 1em 0.15em;
 }
 .prov-list {
 	grid-area: prov-list;
 }
+.list-item {
+	color: var(--color-gray-medium);
+	padding-left: 1em;
+}
+.list-item:nth-child(odd) {
+	background-color: white;
+}
+.list-item:hover {
+	color: black;
+}
+.on {
+	color: var(--color-uv);
+	font-family: 'Soleto-Bold';
+}
+
+
 
 .right-grid {
 	/*border-style: dotted;*/

@@ -22,6 +22,35 @@ for (i in nivaer) {
 	};
 };
 
+state.selection = {
+	elev: {}, // hela elevobjektet
+	prov: [], // provlista (erhålls från funktion, se nedersta delen av filen)
+	uppg: [], // filtrerade uppgifter {id: 0, nr: '', niva: '', formaga: '', res: 0} osv.
+	nMax: 0,
+	matris: [], // Ett element för varje niva/formaga {niva: '', formaga: '', uppgifter = [] } där uppgifter är filtrerat efter elev, prov och niva/formaga
+	update: function() {
+		this.uppg = this.elev.uppg.filter( uppg => this.prov.includes(uppg.prov) );
+		let nMax = 0;
+		let matris = [];
+		for (i in nivaformagor) {
+			let niva = nivaformagor[i].niva;
+			let formaga = nivaformagor[i].formaga;
+			let uppgifter = this.uppg.filter(item => ((item.niva == niva)&&(item.formaga == formaga)));
+			n = uppgifter.length;
+			nMax = Math.max(n, nMax);
+			matris.push(
+				{
+					niva: niva,
+					formaga: formaga,
+					uppg: layout(uppgifter,nMax)
+				}
+			);
+		};
+		this.nMax = nMax;
+		this.matris = matris;
+	}
+};
+
 //----------------------------------------------------
 // Hämta data från localstorage och ladda lista med kurser
 //----------------------------------------------------
@@ -36,7 +65,6 @@ if (!userData.folder) {
 state.folder = userData.folder;
 if (checkFS('kurser.json')) {
 	state.kurser = loadJSON('kurser.json');
-	kursModal();	
 } else {
 	writeJSON('kurser.json', []);
 	state.kurser = loadJSON('kurser.json');
@@ -65,7 +93,6 @@ d3.select('#prov').on('click', provModal);
 function updateKurs() {
 	d3.select('#kurs-namn').text(state.kurs.namn);
 	d3.select('#grupp-namn').text(state.kurs.grupp);	
-	// state.selection = {elev: state.kurs.elev[0].namn, prov: state.kurs.prov}; 
 	updateElever()
 	updateProv()
 	updateMatris()
@@ -73,14 +100,22 @@ function updateKurs() {
 
 function updateElever() {
 	let eleverList = d3.select('#elever-list');
-	let elever = eleverList.selectAll('div').data(state.kurs.elever);
+	let elever = eleverList.selectAll('.list-item').data(state.kurs.elever);
 
 	// Update
-	elever.text( (d) => d.namn );
+	elever.text( (d) => d.namn ).classed('on', d => (d.namn==state.selection.elev.namn));
 
 	// Enter
-	let eleverEnter = elever.enter().append('div');
+	let eleverEnter = elever.enter().append('div').attr('class', 'list-item');
 	eleverEnter.text( (d) => d.namn );
+	eleverEnter.classed('on', d => (d.namn==state.selection.elev.namn));
+	eleverEnter.on('click', function(d) {
+		d3.select('#elever-list').selectAll('.list-item').classed('on', false);
+		d3.select(this).classed('on', true);
+		state.selection.elev = d;
+		state.selection.update();
+		updateMatris();
+	});
 
 	// Exit
 	elever.exit().remove();
@@ -89,17 +124,29 @@ function updateElever() {
 function updateProv() {
 	let prov = [];
 	if (state.kurs.elever.length>=1) {
-		prov = [...new Set(state.kurs.elever[0].uppg.map(x=>x.prov))];
+		prov = allaProv(state.kurs);
 	};
 	let provList = d3.select('#prov-list');
-	let proven = provList.selectAll('div').data(prov);
+	let proven = provList.selectAll('.list-item').data(prov);
 
 	// Update
-	proven.text( function(d) {return d;});
+	proven.text( function(d) {return d;}).classed('on', d => state.selection.prov.includes(d));
 
 	// Enter
-	let provenEnter = proven.enter().append('div');
+	let provenEnter = proven.enter().append('div').attr('class', 'list-item');
+	provenEnter.classed('on', d => (state.selection.prov.includes(d)))
 	provenEnter.text( function(d) { return d;} );
+	provenEnter.on('click', function(d) {
+		if (state.selection.prov.includes(d)) {
+			state.selection.prov = state.selection.prov.filter(prov => (prov!=d));
+		} else {
+			state.selection.prov.push(d);
+		};
+		d3.select("#prov-list").selectAll('.list-item')
+			.classed('on', d => (state.selection.prov.includes(d)));
+		state.selection.update();
+		updateMatris();
+	});
 
 	// Exit
 	proven.exit().remove();
@@ -107,60 +154,65 @@ function updateProv() {
 
 
 function updateMatris() {
-	let matrisElement = d3.select('.right-grid').selectAll('.matris-element').data(nivaformagor);
-	let svg = matrisElement.enter()
+	let matrisElement = d3.select('.right-grid').selectAll('.matris-element').data(state.selection.matris);
+	// Update
+	let svgElement = matrisElement.select('svg');
+	svgElement.each(updateElement);
+	// Enter
+	let matrisElementEnter = matrisElement.enter()
 		.append('div')
 		.attr('class', 'matris-element')
-		.style('grid-area', function(d) {
-			return d.niva + d.formaga;
-		})
-		.append('svg').attr('width', '100%')
+		.style('grid-area', d => d.niva + d.formaga);
+	let svgElementEnter = matrisElementEnter.append('svg')
+		.attr('width', '100%')
 		.attr('viewBox','0 0 100 50').attr('preserveAspectRatio',"xMidYMid meet");
-
-	//function filterData(data, niva, formaga) {
-	//	data = data.filter(item => ((item.niva == niva)&&(item.formaga == formaga)));
-	//};
-	let data = state.kurs.elever[0].uppg;
-	let m = nMax(data); 
-
-	//let data = state.kurs.elever.filter( (x) => (x.namn == state.selection.namn)); // find?
-	//data = data[0].uppg.filter( (x) => ( state.selection.prov.includes(x.prov) )); 
-	//let groups = svg.selectAll('g').data( (d) => filterData(data, d.niva, d.formaga) );
-	let groups = svg.selectAll('g').data(function(d) {
-		let data2 = filterData(data, d.niva, d.formaga).sort(function(x, y){ return d3.ascending(x.nr, y.nr);});
-		return layout(data2,m);
-	});
-
-	// Update
-	groups.select('circle')
-		.attr('cx', d => d.x)
-		.attr('cy', d => d.y)
-		.attr('r', d => d.r)
-		.attr('class', d => d.className);
-	groups.select('text')
-		.attr('x', d => d.x)
-		.attr('y', d => d.y)
-		.attr('class', 'uppgText')
-		.text(d => d.nr);
-
-	// Enter
-	let groupsEnter = groups.enter().append('g');
-	groupsEnter.append('circle')
-		.attr('cx', d => d.x)
-		.attr('cy', d => d.y)
-		.attr('r', d => d.r)
-		.attr('class', d => d.className);
-	groupsEnter.append('text')
-		.attr('x', d => d.x)
-		.attr('y', d => d.y)
-		.attr('class', 'uppgText')
-		.text(d => d.nr);
-	
+	svgElementEnter.each(updateElement);
 	// Exit
-	groups.exit().remove();
+	svgElement.exit().remove();
+
+	function updateElement() {
+		let svg = d3.select(this);
+		let groups = svg.selectAll('g').data(d => d.uppg);
+
+		// Update
+		groups.select('circle')
+			.attr('cx', s => s.x)
+			.attr('cy', s => s.y)
+			.attr('r', s => s.r)
+			.attr('class', s => s.className);
+		groups.select('text')
+			.attr('x', s => s.x)
+			.attr('y', s => s.y)
+			.attr('class', 'uppgText')
+			.text(s => s.nr);
+
+		// Enter
+		let groupsEnter = groups.enter().append('g');
+		groupsEnter.append('circle')
+			.attr('cx', s => s.x)
+			.attr('cy', s => s.y)
+			.attr('r', s => s.r)
+			.attr('class', s => s.className);
+		groupsEnter.append('text')
+			.attr('x', s => s.x)
+			.attr('y', s => s.y)
+			.attr('class', 'uppgText')
+			.text(s => s.nr);
+		groups.on('click', function(s) {
+			s.res = (s.res + 1)%3;
+			let elevId = state.selection.elev.id;
+			let uppgId = s.id;
+			state.kurs.elever[elevId].uppg[uppgId].res = s.res;
+			updateAllaElever();
+			writeJSON( generateFileName(state.kurs), state.kurs );
+			state.selection.update();
+			updateMatris();
+		})
+
+		// Exit
+		groups.exit().remove();
+	};
 };
-
-
 
 
 
@@ -183,6 +235,9 @@ function kursModal() {
 	kursElemsEnter.html(function(d) {return d.namn + '   ' + d.grupp});
 	kursElemsEnter.on('click', function(d) {
 		state.kurs = loadJSON(d.filename);
+		state.selection.elev = state.kurs.elever[0];
+		state.selection.prov = allaProv(state.kurs);
+		state.selection.update()
 		updateKurs();
 		closeModal();
 	});
@@ -225,7 +280,7 @@ function elevModal() {
 			{
 				id: findUniqueId(state.kurs.elever),
 				namn: elev,
-				uppg: []
+				uppg: allaUppgifter(state.kurs)
 			}
 			));
 		writeJSON( generateFileName(state.kurs), state.kurs );
@@ -260,6 +315,7 @@ function provModal() {
 					res: 0
 				});
 			};
+			updateAllaElever();
 			writeJSON( generateFileName(state.kurs), state.kurs );
 			updateProv();
 			closeModal();
@@ -315,6 +371,10 @@ function findUniqueId(array) {
 	};
 };
 
+
+// ----------------------------------------
+// Modal (bör uppdateras och snyggas till)
+// ----------------------------------------
 function openModal() {
 	d3.select('#modal-background').style('display', 'block');
 };
@@ -331,15 +391,20 @@ function modalMessage(title, content) {
 	d3.select('#modal-close').on('click', closeModal);
 };
 
+// ----------------------------------------
+// Hjälpfunktioner för att få alla uppgifter / prov
+// ----------------------------------------
 function allaUppgifter(kurs) {
-	return kurs.elever.reduce( (uppg, elev) => uppg.concat(elev.uppg) );
-	/*
-	let uppg = [];
-	for (i in kurs.elever) {
-		uppg.concat(kurs.elever[i].uppg);
-	};
-	*/
+	return kurs.elever.reduce( (uppg, elev) => (elev.namn!='Alla elever')?uppg.concat(elev.uppg):uppg, [] );
 };
+
+function updateAllaElever() {
+	state.kurs.elever[0].uppg = state.kurs.elever.reduce( (uppg, elev) => (elev.namn!='Alla elever')?uppg.concat(elev.uppg):uppg, [] );
+};
+
+function allaProv(kurs) {
+	return [...new Set(kurs.elever[0].uppg.map(x=>x.prov))]
+}
 
 // ----------------------------------------
 // Hjälpfunktion för att tillåta <tab> i textarea
@@ -348,18 +413,14 @@ function enableTab(id) {
     var el = document.getElementById(id);
     el.onkeydown = function(e) {
         if (e.keyCode === 9) { // tab was pressed
-
             // get caret position/selection
             var val = this.value,
                 start = this.selectionStart,
                 end = this.selectionEnd;
-
             // set textarea value to: text before caret + tab + text after caret
             this.value = val.substring(0, start) + '\t' + val.substring(end);
-
             // put caret at right position again
             this.selectionStart = this.selectionEnd = start + 1;
-
             // prevent the focus lose
             return false;
 
@@ -367,41 +428,25 @@ function enableTab(id) {
     };
 };
 
+// ----------------------------------------
+// Hjälpfunktioner för layout
+// ----------------------------------------
 function kvot(a,b) {
 	return (a-(a%b))/b;
 };
-//let formagaList = ['B', 'P', 'PL', 'M', 'R', 'K'];
-//let nivaList = ['E', 'C', 'A'];
-
-
-function filterData(data, niva, formaga) {
-	return data.filter(item => ((item.niva == niva)&&(item.formaga == formaga)));
-};
-
-function nMax(data) {
-	let nMax = 0;
-	for (i in nivaer) {
-		for (j in formagor) {
-			n = data.filter(item => ((item.niva == nivaer[i])&&(item.formaga == formagor[j]))).length;
-			nMax = Math.max(n, nMax);
-		}
-	};
-	return nMax;
-};
-
 function layout(data, m) {
 	let ncols = Math.ceil(Math.sqrt(2*(m)));
 	let q = kvot(m, ncols);
 	let nrows = ( m%ncols == 0 ) ? q : q+1;
 	let r = Math.min(100/(2*ncols) , 50/(2*nrows), 12);
 	let margin = 1;
-	data = data.map((obj, i) => ({ ...obj, 
+	let layout = data.map((obj, i) => ({ ...obj, 
 		x : 0.5*margin + r + 2*r*(i%ncols), 
 		y: 0.5*margin + r + 2*r*kvot(i,ncols),
 		r: r-margin,
 		className: 'res' + obj.res,
 		mMax: m
 	}));
-	return data;
+	return layout;
 };
 
