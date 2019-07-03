@@ -26,33 +26,61 @@ state.selection = {
 	elev: {}, // hela elevobjektet
 	prov: [], // provlista (erhålls från funktion, se nedersta delen av filen)
 	listview: false, // för lista istället för matris
-	unlocked: false,
+	unlockable: false,
+	datasize: 'small',
 	uppg: [], // filtrerade uppgifter {id: 0, nr: '', niva: '', formaga: '', res: 0} osv.
 	nMax: 0,
 	matris: [], // Ett element för varje niva/formaga {niva: '', formaga: '', uppgifter = [] } där uppgifter är filtrerat efter elev, prov och niva/formaga
 	update: function() {
 		this.uppg = this.elev.uppg.filter( uppg => this.prov.includes(uppg.prov) );
-		this.unlocked = ((this.prov.length==1)&&(this.elev.namn!='Alla elever'));
+		this.unlockable = ((this.prov.length==1)&&(this.elev.namn!='Alla elever'));
+		if (this.unlockable) {
+			d3.select('#lock').style('color', 'black');
+		} else {
+			d3.select('#lock').attr('class', 'icon-lock').style('color', 'gray');
+		};
 		let nMax = 0;
-		let matris = [];
 		for (i in nivaformagor) {
 			let niva = nivaformagor[i].niva;
 			let formaga = nivaformagor[i].formaga;
 			let uppgifter = this.uppg.filter(item => ((item.niva == niva)&&(item.formaga == formaga)));
 			n = uppgifter.length;
+			// Denna behöver vara utanför (just nu är det nuvarande nMax som används i layout -> olika för olika rutor)
 			nMax = Math.max(n, nMax);
+		};
+		this.nMax = nMax;
+		let matris = [];
+		if (this.nMax<=15) {
+			this.datasize = 'small';
+		} else if (this.nMax<28) {
+			this.datasize = 'medium';
+		} else {
+			this.datasize = 'large';
+		};
+		for (i in nivaformagor) {
+			let niva = nivaformagor[i].niva;
+			let formaga = nivaformagor[i].formaga;
+			let uppgifter = this.uppg.filter(item => ((item.niva == niva)&&(item.formaga == formaga)));
+			if (this.datasize!='small') {
+				uppgifter.sort(function(x,y) {
+					return d3.descending(x.res, y.res);
+				})
+			};
+			// Calculate percentage
+			let percentage = 50*uppgifter.reduce( (sum, uppg) => sum + (uppg.res || 0), 0) / uppgifter.length;
+			percentage = (isNaN(percentage))?0:Math.round(percentage);
 			matris.push(
 				{
 					niva: niva,
 					formaga: formaga,
-					uppg: layout(uppgifter,nMax)
+					percentage: percentage,
+					uppg: layout(uppgifter,this.nMax)
 				}
 			);
 		};
-		this.nMax = nMax;
 		this.matris = matris;
 	}
-};
+}
 
 //----------------------------------------------------
 // Hämta data från localstorage och ladda lista med kurser
@@ -81,6 +109,14 @@ if (checkFS('kurser.json')) {
 d3.select('#kurs-namn').on('click',kursModal);
 d3.select('#elever').on('click', elevModal);
 d3.select('#prov').on('click', provModal);
+d3.select('#lock').on('click', function() {
+	let icon = d3.select('#lock');
+	if ((state.selection.unlockable)&&(icon.classed('icon-lock'))) {
+		icon.attr('class', 'icon-lock-open-alt');
+	} else {
+		icon.attr('class', 'icon-lock');
+	};
+});
 
 
 
@@ -95,7 +131,8 @@ d3.select('#prov').on('click', provModal);
 //----------------------------------------------------
 function updateKurs() {
 	d3.select('#kurs-namn').text(state.kurs.namn);
-	d3.select('#grupp-namn').text(state.kurs.grupp);	
+	d3.select('#grupp-namn').text(state.kurs.grupp);
+	state.selection.update()	
 	updateElever()
 	updateProv()
 	updateMatris()
@@ -171,6 +208,13 @@ function updateMatris() {
 
 	function updateElement() {
 		let svg = d3.select(this);
+		/*
+		var filter = svg.append("defs")
+      		.append("filter")
+      		.attr("id", "blur")
+      		.append("feGaussianBlur")
+      		.attr("stdDeviation", 0.5);
+      	*/ 
 		let groups = svg.selectAll('g').data(d => d.uppg);
 
 		// Update
@@ -178,38 +222,71 @@ function updateMatris() {
 			.attr('cx', s => s.x)
 			.attr('cy', s => s.y)
 			.attr('r', s => s.r)
-			.attr('class', s => s.className);
+			.attr('class', s => s.className)
+			.attr('opacity', (state.selection.datasize=='large')?0.5:1);
+//			.attr("filter", (state.selection.datasize=='large')?"url(#blur)":null);
 		groups.select('text')
 			.attr('x', s => s.x)
 			.attr('y', s => s.y)
 			.attr('class', 'uppgText')
-			.text(s => s.nr);
-
+			.text(s => s.nr)
+			.attr('visibility', (state.selection.datasize=='small')?'visible':'hidden');
 		// Enter
 		let groupsEnter = groups.enter().append('g');
 		groupsEnter.append('circle')
 			.attr('cx', s => s.x)
 			.attr('cy', s => s.y)
 			.attr('r', s => s.r)
-			.attr('class', s => s.className);
+			.attr('class', s => s.className)
+			.attr('opacity', (state.selection.datasize=='large')?0.5:1);
+//			.attr("filter", (state.selection.datasize=='large')?"url(#blur)":null);
 		groupsEnter.append('text')
 			.attr('x', s => s.x)
 			.attr('y', s => s.y)
 			.attr('class', 'uppgText')
-			.text(s => s.nr);
+			.text(s => s.nr)
+			.attr('visibility', (state.selection.datasize=='small')?'visible':'hidden');
 		groups.on('click', function(s) {
-			s.res = (s.res + 1)%3;
-			let elevId = state.selection.elev.id;
-			let uppgId = s.id;
-			state.kurs.elever[elevId].uppg[uppgId].res = s.res;
-			updateAllaElever();
-			writeJSON( generateFileName(state.kurs), state.kurs );
-			state.selection.update();
-			updateMatris();
-		})
-
+			if (d3.select('#lock').attr('class')=='icon-lock-open-alt') {
+				s.res = (s.res + 1)%3;
+				let elevId = state.selection.elev.id;
+				let uppgId = s.id;
+				state.kurs.elever[elevId].uppg[uppgId].res = s.res;
+				updateAllaElever();
+				writeJSON( generateFileName(state.kurs), state.kurs );
+				state.selection.update();
+				updateMatris();
+			};
+		});
 		// Exit
 		groups.exit().remove();
+
+		// Display percentage
+		let percentText = svg.select('#percent-text');
+		let percentBackground = svg.select('#percent-background');
+		if (!percentText.empty()) {percentText.remove(); percentBackground.remove()};
+		/*
+		svg.append('rect').attr('id','percent-background')
+			.attr('x',0).attr('y',0).attr('width', 100).attr('height', 50).style('fill','white').style('opacity', 0.7);
+		*/
+		svg.append('text').attr('x', 50).attr('y', 25).attr('id', 'percent-text')
+			.text(d=>d.percentage+'%')
+			.style('font-size', '28pt')
+			.style('font-family', 'Soleto-XBold')
+			.style('text-anchor', 'middle')
+			.style('alignment-baseline', 'middle')
+			.style('stroke', 'white')
+			.style('stroke-width', '1.25pt')
+			.style('fill', function(d) {
+				if (d.percentage>70) {
+					return 'darkgreen';
+				} else if (d.percentage>40) {
+					return 'gold';
+				} else {
+					return '#e1e1e1';
+				};
+			})
+			.style('visibility', (state.selection.datasize=='large')?'visible':'hidden');
 	};
 };
 

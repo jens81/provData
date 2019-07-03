@@ -7,6 +7,10 @@
     src: url("../fonts/Soleto-Bold.ttf");
 }
 @font-face {
+    font-family: "Soleto-XBold";
+    src: url("../fonts/Soleto-XBold.ttf");
+}
+@font-face {
     font-family: "Soleto-Thin";
     src: url("../fonts/Soleto-Thin.ttf");
 }
@@ -59,6 +63,7 @@ body h3 {
 }
 
 .body-wrapper {
+	overflow-y: hidden;
 	margin: 1em;
 	margin-top: 2em;
 	/*height: 100vh;*/
@@ -69,7 +74,8 @@ body h3 {
 		"left"
 		"right";
 	grid-template-columns: 1fr 2fr;
-	grid-template-rows: 1fr 5fr;
+	grid-template-rows: 5em auto;
+	/*grid-template-rows: 1fr 5fr;*/
 	grid-template-areas:
 		"top top"
 		"left right";
@@ -90,20 +96,26 @@ body h3 {
 }
 .left {
 	grid-area: left;
+	height: 525px;
+	/*overflow-y: scroll;*/
 }
 .right {
 	grid-area: right;
+	height: 525px;
+	/*overflow-y: scroll;*/
 }
 .left-grid {
 	/*border-style: dotted;*/
 	display: grid;
+	overflow-y: scroll;
 	grid-gap: 0em;
 	grid-template-areas:
 		"elever-title"
 		"elever-list"
 		"prov-title"
 		"prov-list";
-	grid-template-rows: 1fr 8fr 1fr 4fr;
+	/*grid-template-rows: 1fr 8fr 1fr 4fr;*/
+	grid-template-rows: 1.8em 18em 1.8em 10em;
 	grid-template-areas:
 		"elever-title"
 		"elever-list"
@@ -123,6 +135,7 @@ body h3 {
 }
 .elever-list {
 	grid-area: elever-list;
+	overflow-y: scroll;
 }
 .prov-title {
 	grid-area: prov-title;
@@ -135,6 +148,7 @@ body h3 {
 }
 .prov-list {
 	grid-area: prov-list;
+	overflow-y: scroll;
 }
 .list-item {
 	color: var(--color-gray-medium);
@@ -261,6 +275,12 @@ body h3 {
 	background-color: white;
 }
 
+#lock {
+	color: var(--color-gray-dark);
+}
+#view {
+	color: var(--color-gray-dark);
+}
 
 
 
@@ -368,21 +388,21 @@ input {
 /* visualization styles*/
 .res0 {
 	shape-rendering: auto;
-	cursor: pointer;
+	/*cursor: pointer;*/
 	stroke-dasharray: none;
 	stroke: none;
 	fill: #e1e1e1;
 }
 .res1 {
 	shape-rendering: auto;
-	cursor: pointer;
+	/*cursor: pointer;*/
 	stroke-dasharray: 1;
 	stroke: gray;
 	fill: gold;
 }
 .res2 {
 	shape-rendering: auto;
-	cursor: pointer;
+	/*cursor: pointer;*/
 	stroke-dasharray: none;
 	stroke: black;
 	fill: #2ECC71;
