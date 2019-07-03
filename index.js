@@ -118,6 +118,15 @@ d3.select('#lock').on('click', function() {
 	};
 });
 
+var tooltip = d3.select("body")
+    .append("div")
+    .attr('class', 'tooltip')
+    .style("position", "absolute")
+    .style("z-index", "10")
+    .style("visibility", "hidden")
+    .text("a simple tooltip");
+
+
 
 
 
@@ -287,6 +296,16 @@ function updateMatris() {
 				};
 			})
 			.style('visibility', (state.selection.datasize=='large')?'visible':'hidden');
+
+
+		//let tooltipDisplacement = {top: 0, left: 0};
+		tooltip.attr('classed', 'left')
+		groupsEnter.on('mouseover', function(s){ 
+			tooltiphtml = (state.selection.datasize=='small')? '<b>'+s.prov+'</b><br>'+s.kriterie : '<b>'+s.prov+'</b><br><b> '+s.nr+'</b> | '+s.kriterie; 
+			tooltip.html(tooltiphtml); 
+			return tooltip.style("visibility", "visible");});
+		groupsEnter.on("mousemove", function(){return tooltip.style("top", (d3.event.pageY+10)+"px").style("left",(d3.event.pageX - 100)+"px");})
+	    groupsEnter.on("mouseout", function(){return tooltip.style("visibility", "hidden");});
 	};
 };
 
