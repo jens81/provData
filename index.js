@@ -36,8 +36,10 @@ state.selection = {
 		this.unlockable = ((this.prov.length==1)&&(this.elev.namn!='Alla elever'));
 		if (this.unlockable) {
 			d3.select('#lock').style('color', 'black');
+			d3.select('#lock2').style('color', 'black');
 		} else {
 			d3.select('#lock').attr('class', 'icon-lock').style('color', 'gray');
+			d3.select('#lock2').attr('class', 'icon-lock').style('color', 'gray');
 		};
 		let nMax = 0;
 		for (i in nivaformagor) {
@@ -117,6 +119,25 @@ d3.select('#lock').on('click', function() {
 		icon.attr('class', 'icon-lock');
 	};
 });
+d3.select('#lock2').on('click', function() {
+	let icon = d3.select('#lock2');
+	if ((state.selection.unlockable)&&(icon.classed('icon-lock'))) {
+		icon.attr('class', 'icon-lock-open-alt');
+	} else {
+		icon.attr('class', 'icon-lock');
+	};
+});
+d3.select('#view').on('click', function() {
+	d3.select('#matris-container').style('display', 'none');
+	d3.select('#list-container').style('display', 'block');
+});
+d3.select('#view2').on('click', function() {
+	d3.select('#list-container').style('display', 'none');
+	d3.select('#matris-container').style('display', 'grid');
+});
+
+
+
 
 var tooltip = d3.select("body")
     .append("div")
@@ -199,7 +220,7 @@ function updateProv() {
 	proven.exit().remove();
 };
 function updateMatris() {
-	let matrisElement = d3.select('.right-grid').selectAll('.matris-element').data(state.selection.matris);
+	let matrisElement = d3.select('.matris-grid').selectAll('.matris-element').data(state.selection.matris);
 	// Update
 	let svgElement = matrisElement.select('svg');
 	svgElement.each(updateElement);
@@ -307,8 +328,48 @@ function updateMatris() {
 		groupsEnter.on("mousemove", function(){return tooltip.style("top", (d3.event.pageY+10)+"px").style("left",(d3.event.pageX - 100)+"px");})
 	    groupsEnter.on("mouseout", function(){return tooltip.style("visibility", "hidden");});
 	};
+	updateList();
 };
 
+
+function updateList() {
+	let uppgiftList = d3.select('#uppgift-list');
+	let uppgiftRow = uppgiftList.selectAll('.list-grid').data(state.selection.uppg);
+
+	// Update
+	let svgNr = uppgiftRow.select('.nr').select('svg');
+	svgNr.select('circle').attr('class', d => 'res'+d.res);
+	svgNr.select('text').text(d => d.nr);
+	uppgiftRow.select('.typ').html(function(d) {return d.niva + '<sub>' + d.formaga + '</sub>';});
+	uppgiftRow.select('.kriterie').text(function(d) {return d.kriterie;});
+
+	// Enter
+	let uppgiftRowEnter = uppgiftRow.enter().append('div').attr('class', 'list-grid');
+	//uppgiftRowEnter.append('div').attr('class','nr').text(function(d) {return d.nr});
+	let svgNrEnter = uppgiftRowEnter.append('div').attr('class','nr').append('svg');
+	svgNrEnter.attr('width', '100%').attr('viewBox','0 0 100 50').attr('preserveAspectRatio',"xMidYMid meet");
+	group = svgNr.append('g');
+	group.append('circle').attr('cx', 50).attr('cy', 25).attr('r', 20).attr('class', d => 'res'+d.res);
+	group.append('text').attr('x', 50).attr('y', 25).attr('class', 'uppgNr').text(d => d.nr);
+	group.on('click', function(s) {
+		if (d3.select('#lock2').attr('class')=='icon-lock-open-alt') {
+			s.res = (s.res + 1)%3;
+			let elevId = state.selection.elev.id;
+			let uppgId = s.id;
+			state.kurs.elever[elevId].uppg[uppgId].res = s.res;
+			updateAllaElever();
+			writeJSON( generateFileName(state.kurs), state.kurs );
+			state.selection.update();
+			updateMatris();
+			updateList();
+		};
+	});
+	uppgiftRowEnter.append('div').attr('class','typ').html(function(d) {return d.niva + '<sub>' + d.formaga + '</sub>';});
+	uppgiftRowEnter.append('div').attr('class','kriterie').text(function(d) {return d.kriterie;});
+
+	// Exit
+	uppgiftRow.exit().remove();
+};
 
 
 

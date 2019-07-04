@@ -102,7 +102,7 @@ body h3 {
 .right {
 	grid-area: right;
 	height: 525px;
-	/*overflow-y: scroll;*/
+	overflow-y: scroll;
 }
 .left-grid {
 	/*border-style: dotted;*/
@@ -167,9 +167,17 @@ body h3 {
 
 
 
-.right-grid {
+
+
+/*
+
+ Matris-view css
+
+*/
+.matris-grid {
 	/*border-style: dotted;*/
 	display: grid;
+	/*display: none;*/
 	grid-gap: 0em;
 	grid-template-areas:
 		"tools"
@@ -284,6 +292,75 @@ body h3 {
 
 
 
+
+
+
+
+/*
+
+ List-view css
+
+*/
+
+#list-container {
+	display: none;
+	overflow-y: scroll;
+}
+
+.list-grid {
+	/*border-style: dotted;*/
+	display: grid;
+	/*display: none;*/
+	grid-gap: 0em;
+	grid-template-columns: 5em 3em auto;
+}
+.list-grid:nth-child(odd) {
+	background-color: white;
+}
+.nr {
+	padding: 0.15em 0.5em 0.15em;
+	border-bottom-style: dotted;
+	border-width: 1px;
+	border-right-style: dotted;
+	text-align: center;
+}
+.typ {
+	padding: 0.15em 0.5em 0.15em;
+	border-bottom-style: dotted;
+	border-width: 1px;
+	text-align: center;
+	border-right-style: dotted;
+}
+.kriterie {
+	padding: 0.15em 0.5em 0.15em;
+	border-bottom-style: dotted;
+	border-width: 1px;
+}
+
+.uppgNr {
+	font-size: 12pt;
+	font-weight: lighter;
+	shape-rendering: auto;
+	fill: black;
+	text-anchor: middle;
+	alignment-baseline: central;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Input css */
+
 .input-list {
     background-attachment: local;
     background-image:
@@ -299,11 +376,6 @@ body h3 {
     padding: 8px 10px;
     border: none;
 }
-
-
-
-
-
 
 
 
