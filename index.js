@@ -337,21 +337,26 @@ function updateList() {
 	let uppgiftRow = uppgiftList.selectAll('.list-grid').data(state.selection.uppg);
 
 	// Update
-	let svgNr = uppgiftRow.select('.nr').select('svg');
-	svgNr.select('circle').attr('class', d => 'res'+d.res);
-	svgNr.select('text').text(d => d.nr);
+	let nr = uppgiftRow.select('.nr');
+	let svgNr = nr.select('svg');
+	let group = svgNr.select('g');
+	group.select('circle').attr('class', d => (state.selection.elev.namn=='Alla elever')?'res-neutral':'res'+d.res);
+	group.select('text').text(d => d.nr);
+	nr.select('span').text('update');
 	uppgiftRow.select('.typ').html(function(d) {return d.niva + '<sub>' + d.formaga + '</sub>';});
 	uppgiftRow.select('.kriterie').text(function(d) {return d.kriterie;});
 
 	// Enter
 	let uppgiftRowEnter = uppgiftRow.enter().append('div').attr('class', 'list-grid');
 	//uppgiftRowEnter.append('div').attr('class','nr').text(function(d) {return d.nr});
-	let svgNrEnter = uppgiftRowEnter.append('div').attr('class','nr').append('svg');
+	let nrEnter = uppgiftRowEnter.append('div').attr('class','nr')
+	let svgNrEnter = nrEnter.append('svg');
 	svgNrEnter.attr('width', '100%').attr('viewBox','0 0 100 50').attr('preserveAspectRatio',"xMidYMid meet");
-	group = svgNr.append('g');
-	group.append('circle').attr('cx', 50).attr('cy', 25).attr('r', 20).attr('class', d => 'res'+d.res);
-	group.append('text').attr('x', 50).attr('y', 25).attr('class', 'uppgNr').text(d => d.nr);
-	group.on('click', function(s) {
+	groupEnter = svgNrEnter.append('g');
+	groupEnter.append('circle').attr('cx', 50).attr('cy', 25).attr('r', 20)
+		.attr('class', d => (state.selection.elev.namn=='Alla elever')?'res-neutral':'res'+d.res);
+	groupEnter.append('text').attr('x', 50).attr('y', 25).attr('class', 'uppgNr').text(d => d.nr);
+	groupEnter.on('click', function(s) {
 		if (d3.select('#lock2').attr('class')=='icon-lock-open-alt') {
 			s.res = (s.res + 1)%3;
 			let elevId = state.selection.elev.id;
@@ -364,6 +369,7 @@ function updateList() {
 			updateList();
 		};
 	});
+	nrEnter.append('span').text('enter');
 	uppgiftRowEnter.append('div').attr('class','typ').html(function(d) {return d.niva + '<sub>' + d.formaga + '</sub>';});
 	uppgiftRowEnter.append('div').attr('class','kriterie').text(function(d) {return d.kriterie;});
 
