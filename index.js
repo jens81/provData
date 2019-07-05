@@ -128,12 +128,16 @@ d3.select('#lock2').on('click', function() {
 	};
 });
 d3.select('#view').on('click', function() {
+	state.selection.listview = true;
 	d3.select('#matris-container').style('display', 'none');
 	d3.select('#list-container').style('display', 'block');
+	updateView();
 });
 d3.select('#view2').on('click', function() {
+	state.selection.listview = false;
 	d3.select('#list-container').style('display', 'none');
 	d3.select('#matris-container').style('display', 'grid');
+	updateView();
 });
 
 
@@ -165,7 +169,7 @@ function updateKurs() {
 	state.selection.update()	
 	updateElever()
 	updateProv()
-	updateMatris()
+	updateView()
 };
 function updateElever() {
 	let eleverList = d3.select('#elever-list');
@@ -182,8 +186,8 @@ function updateElever() {
 		d3.select('#elever-list').selectAll('.list-item').classed('on', false);
 		d3.select(this).classed('on', true);
 		state.selection.elev = d;
-		state.selection.update();
-		updateMatris();
+		//state.selection.update();
+		updateView();
 	});
 
 	// Exit
@@ -212,8 +216,9 @@ function updateProv() {
 		};
 		d3.select("#prov-list").selectAll('.list-item')
 			.classed('on', d => (state.selection.prov.includes(d)));
-		state.selection.update();
-		updateMatris();
+		//state.selection.update();
+		//update();
+		updateView();
 	});
 
 	// Exit
@@ -238,13 +243,6 @@ function updateMatris() {
 
 	function updateElement() {
 		let svg = d3.select(this);
-		/*
-		var filter = svg.append("defs")
-      		.append("filter")
-      		.attr("id", "blur")
-      		.append("feGaussianBlur")
-      		.attr("stdDeviation", 0.5);
-      	*/ 
 		let groups = svg.selectAll('g').data(d => d.uppg);
 
 		// Update
@@ -254,7 +252,6 @@ function updateMatris() {
 			.attr('r', s => s.r)
 			.attr('class', s => s.className)
 			.attr('opacity', (state.selection.datasize=='large')?0.5:1);
-//			.attr("filter", (state.selection.datasize=='large')?"url(#blur)":null);
 		groups.select('text')
 			.attr('x', s => s.x)
 			.attr('y', s => s.y)
@@ -269,7 +266,6 @@ function updateMatris() {
 			.attr('r', s => s.r)
 			.attr('class', s => s.className)
 			.attr('opacity', (state.selection.datasize=='large')?0.5:1);
-//			.attr("filter", (state.selection.datasize=='large')?"url(#blur)":null);
 		groupsEnter.append('text')
 			.attr('x', s => s.x)
 			.attr('y', s => s.y)
@@ -284,8 +280,8 @@ function updateMatris() {
 				state.kurs.elever[elevId].uppg[uppgId].res = s.res;
 				updateAllaElever();
 				writeJSON( generateFileName(state.kurs), state.kurs );
-				state.selection.update();
-				updateMatris();
+				//state.selection.update();
+				updateView();
 			};
 		});
 		// Exit
@@ -295,10 +291,6 @@ function updateMatris() {
 		let percentText = svg.select('#percent-text');
 		let percentBackground = svg.select('#percent-background');
 		if (!percentText.empty()) {percentText.remove(); percentBackground.remove()};
-		/*
-		svg.append('rect').attr('id','percent-background')
-			.attr('x',0).attr('y',0).attr('width', 100).attr('height', 50).style('fill','white').style('opacity', 0.7);
-		*/
 		svg.append('text').attr('x', 50).attr('y', 25).attr('id', 'percent-text')
 			.text(d=>d.percentage+'%')
 			.style('font-size', '28pt')
@@ -318,8 +310,6 @@ function updateMatris() {
 			})
 			.style('visibility', (state.selection.datasize=='large')?'visible':'hidden');
 
-
-		//let tooltipDisplacement = {top: 0, left: 0};
 		tooltip.attr('classed', 'left')
 		groupsEnter.on('mouseover', function(s){ 
 			tooltiphtml = (state.selection.datasize=='small')? '<b>'+s.prov+'</b><br>'+s.kriterie : '<b>'+s.prov+'</b><br><b> '+s.nr+'</b> | '+s.kriterie; 
@@ -328,13 +318,20 @@ function updateMatris() {
 		groupsEnter.on("mousemove", function(){return tooltip.style("top", (d3.event.pageY+10)+"px").style("left",(d3.event.pageX - 100)+"px");})
 	    groupsEnter.on("mouseout", function(){return tooltip.style("visibility", "hidden");});
 	};
-	updateList();
+	//updateList();
+	//updateView();
 };
 
 
 function updateList() {
+	let listData = []
+	if (state.selection.elev.namn=='Alla elever') {
+		listData = filterWithAverage();
+	} else {
+		listData = state.selection.uppg;
+	};
 	let uppgiftList = d3.select('#uppgift-list');
-	let uppgiftRow = uppgiftList.selectAll('.list-grid').data(state.selection.uppg);
+	let uppgiftRow = uppgiftList.selectAll('.list-grid').data(listData);
 
 	// Update
 	let nr = uppgiftRow.select('.nr');
@@ -342,7 +339,17 @@ function updateList() {
 	let group = svgNr.select('g');
 	group.select('circle').attr('class', d => (state.selection.elev.namn=='Alla elever')?'res-neutral':'res'+d.res);
 	group.select('text').text(d => d.nr);
-	nr.select('span').text('update');
+	nr.select('span')
+		.text(d => (state.selection.elev.namn=='Alla elever')?d.percentage+'%':'')
+		.style('color', function(d) {
+			if (d.percentage>70) {
+				return 'green';
+			} else if (d.percentage>40) {
+				return 'gold';
+			} else {
+				return 'gray';
+			};
+		});
 	uppgiftRow.select('.typ').html(function(d) {return d.niva + '<sub>' + d.formaga + '</sub>';});
 	uppgiftRow.select('.kriterie').text(function(d) {return d.kriterie;});
 
@@ -364,12 +371,22 @@ function updateList() {
 			state.kurs.elever[elevId].uppg[uppgId].res = s.res;
 			updateAllaElever();
 			writeJSON( generateFileName(state.kurs), state.kurs );
-			state.selection.update();
-			updateMatris();
-			updateList();
+			//state.selection.update();
+			updateView();
+			//updateList();
 		};
 	});
-	nrEnter.append('span').text('enter');
+	nrEnter.append('span')
+		.text(d => (state.selection.elev.namn=='Alla elever')?d.percentage+'%':'')
+		.style('color', function(d) {
+			if (d.percentage>70) {
+				return 'green';
+			} else if (d.percentage>40) {
+				return 'gold';
+			} else {
+				return 'gray';
+			};
+		});
 	uppgiftRowEnter.append('div').attr('class','typ').html(function(d) {return d.niva + '<sub>' + d.formaga + '</sub>';});
 	uppgiftRowEnter.append('div').attr('class','kriterie').text(function(d) {return d.kriterie;});
 
@@ -610,5 +627,43 @@ function layout(data, m) {
 		mMax: m
 	}));
 	return layout;
+};
+
+
+function filterWithAverage() {
+	//let filterProv = state.selection.prov.map( prov => state.selection.uppg.filter(uppg => (uppg.prov==prov)));
+	//filterProv.map( item => item.reduce)
+	let uppgData = []
+	for (i in state.selection.prov) {
+		let filterProv = state.selection.uppg.filter(uppg => (uppg.prov==state.selection.prov[i]));
+		let idList = [...new Set(filterProv.map(x=>x.id))];
+		//console.log(idList)
+		for (j in idList) {
+			let uppgAllaElever = filterProv.filter( uppg=> (uppg.id == idList[j]));
+			let percentage = Math.round(50*uppgAllaElever.reduce( (tot,uppg) => tot+uppg.res,0)/uppgAllaElever.length);
+			//console.log(uppgAllaElever[0].nr, percentage);
+			uppgData.push({
+				id: uppgAllaElever[0].id, 
+				nr: uppgAllaElever[0].nr,
+				prov: uppgAllaElever[0].prov,
+				niva: uppgAllaElever[0].niva,
+				formaga: uppgAllaElever[0].formaga,
+				kriterie: uppgAllaElever[0].kriterie,
+				res: 0,
+				percentage: percentage
+			});
+		};
+	};
+	return uppgData;
+};
+
+
+function updateView() {
+	state.selection.update();
+	if (state.selection.listview) {
+		updateList();
+	} else {
+		updateMatris();
+	};
 };
 
