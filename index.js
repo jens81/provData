@@ -139,7 +139,7 @@ d3.select('#view2').on('click', function() {
 	d3.select('#matris-container').style('display', 'grid');
 	updateView();
 });
-
+d3.select('#to-csv').on('click', () => exportCSV(state.kurs));
 
 
 
@@ -606,6 +606,27 @@ function enableTab(id) {
         }
     };
 };
+
+
+function exportCSV(kurs) {
+	if (!(Object.keys(state.kurs).length==0)) {
+		csvFileName = kurs.namn + '-' + kurs.grupp + '-' + kurs.id + '.csv';
+		let csvContent = '';
+		if (kurs.elever.length>1) {
+			csvContent += kurs.elever[1].uppg.reduce( (rowString, uppg) => rowString + ',' + uppg.prov, '') + '\n';
+			csvContent += kurs.elever[1].uppg.reduce( (rowString, uppg) => rowString + ',' + uppg.nr, '') + '\n';
+			csvContent += kurs.elever[1].uppg.reduce( (rowString, uppg) => rowString + ',' + uppg.niva, '') + '\n';
+			csvContent += kurs.elever[1].uppg.reduce( (rowString, uppg) => rowString + ',' + uppg.formaga, '') + '\n';
+		};
+
+		kurs.elever.slice(1).forEach( elev => csvContent += elev.namn + ',' + elev.uppg.reduce((rowString, uppg) => rowString + uppg.res + ',', '') + '\n');
+		fs.writeFileSync(state.folder +'/' + csvFileName, csvContent, {encoding:'utf8',flag:'w'});
+		modalMessage('Exportera CSV: Klart', 'Kursen har exporterats till csv med filnamn: <br>' + state.folder + '/' + csvFileName)
+	} else {
+		modalMessage('Exportera CSV: Misslyckat', 'Ingen kurs är vald, eller den går inte att exportera.')
+	}
+};
+
 
 // ----------------------------------------
 // Hjälpfunktioner för layout
