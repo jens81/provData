@@ -376,7 +376,7 @@ function updateList() {
 			//updateList();
 		};
 	});
-	nrEnter.append('span')
+	nrEnter.append('span').style('font-weight', 'bolder')
 		.text(d => (state.selection.elev.namn=='Alla elever')?d.percentage+'%':'')
 		.style('color', function(d) {
 			if (d.percentage>70) {

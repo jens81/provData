@@ -153,6 +153,9 @@ body h3 {
 .list-item {
 	color: var(--color-gray-medium);
 	padding-left: 1em;
+	white-space: nowrap; 
+  	overflow: hidden;
+  	text-overflow: ellipsis;
 }
 .list-item:nth-child(odd) {
 	background-color: white;
