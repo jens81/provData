@@ -3,16 +3,47 @@
   <head>
     <meta charset="UTF-8">
     <title>provApp</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/toPDF.css">
   </head>
   <body>
 
     <div class="body-wrapper">
       <div class="body-item top"> 
-        <span class="h1">Kurs </span><span class="h3"> Grupp</span>
+        <span id="elev-namn" class="h2"></span>
+        <span class="h2" id="kurs-namn" style="float:right">Kurs </span>
+        <span id="prov-namn" class="h3"> Grupp</span>
       </div>
-      <div class="body-item left"></div>
-      <div class="body-item right"></div>
+      <div class="body-item left">
+       <div id='list-container'>
+          <div class="list-grid">
+            <div class="niva">
+              <i id="lock2" class="icon-lock"></i>
+              <i id="view2" class="icon-th-large"></i>              
+            </div> 
+            <div class="niva"> Typ </div>
+            <div class="niva" style="text-align: left"> Kriterie </div>
+          </div>
+          <div id="uppgift-list">
+          </div>
+        </div>
+      </div>
+      <div class="body-item right">
+        <div class="matris-grid" id='matris-container'>
+          <div class="niva tools">
+            <i id="lock" class="icon-lock"></i>
+            <i id="view" class="icon-th-list"></i>
+          </div>
+          <div class="niva E">E</div>
+          <div class="niva C">C</div>
+          <div class="niva A">A</div>
+          <div class="formaga B">B</div>
+          <div class="formaga P">P</div>
+          <div class="formaga PL">PL</div>
+          <div class="formaga M">M</div>
+          <div class="formaga R">R</div>
+          <div class="formaga K">K</div>
+        </div>
+      </div>
     </div>
 
 
@@ -92,6 +123,6 @@
 
     <!-- You can also require other files to run in this process -->
     <script src="./renderer.js"></script>
-    <script src="./index.js"></script>
+    <script src="./toPDF.js"></script>   
   </body>
 </html>

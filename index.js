@@ -2,6 +2,7 @@
 // Ladda in moduler
 const { dialog } = require('electron').remote;
 const fs = require('fs')
+const ipcRenderer = require('electron').ipcRenderer;
 var d3 = require('d3');
 
 //----------------------------------------------------
@@ -140,7 +141,10 @@ d3.select('#view2').on('click', function() {
 	updateView();
 });
 d3.select('#to-csv').on('click', () => exportCSV(state.kurs));
-
+d3.select('#to-pdf').on('click', () => {
+	ipcRenderer.send('exportPDF', {localPath: state.folder, kurs: state.kurs});
+	modalMessage('Exporterar till pdf', '<div id="pdf-progress-container"><span id="pdf-progress"></span></div>');
+});
 
 
 var tooltip = d3.select("body")
@@ -509,7 +513,17 @@ function provModal() {
 
 
 
-
+ipcRenderer.on('progress', function(event, percentage) {
+	//console.log(percentage);
+	d3.select('#pdf-progress').style('background-color', 'var(--color-uv)');
+	d3.select('#pdf-progress').text(Math.round(percentage) + '%');
+	d3.select('#pdf-progress').style('width', () => percentage + '%');
+});
+ipcRenderer.on('klart', function(event, arg) {
+	d3.select('#pdf-progress').text('Klar');
+	d3.select('#pdf-progress').style('width', () => '100%');
+	d3.select('#pdf-progress').style('background-color', 'green');
+});
 
 
 

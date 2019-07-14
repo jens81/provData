@@ -1,10 +1,13 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow} = require('electron')
+const {app, BrowserWindow, ipcMain} = require('electron')
 const path = require('path')
+const fs = require('fs');
+//const ipcMain = require('electron').ipcMain;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
+let exportWindow
 
 function createWindow () {
   // Create the browser window.
@@ -15,13 +18,29 @@ function createWindow () {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true
     },
-    titleBarStyle: 'hiddenInset',
-    frame: false,
+    //titleBarStyle: 'hiddenInset',
+    //frame: false,
+    title: 'provData'
+  })
+  exportWindow = new BrowserWindow({
+    width: 800,
+    height: 1000,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: true
+    },
+    //titleBarStyle: 'hiddenInset',
+    //frame: false,
+    show: false,
+    //parent: mainWindow,
     title: 'provData'
   })
 
+
+
   // and load the index.html of the app.
   mainWindow.loadFile('index.html')
+  exportWindow.loadFile('toPDF.html')
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
@@ -33,12 +52,72 @@ function createWindow () {
     // when you should delete the corresponding element.
     mainWindow = null
   })
+  exportWindow.on('closed', function () {
+    // Dereference the window object, usually you would store windows
+    // in an array if your app supports multi windows, this is the time
+    // when you should delete the corresponding element.
+    exportWindow = null
+  })
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
+app.on('ready', function() {
+  createWindow();
+
+  let localPath = '';
+  let kursNamn = '';
+  let gruppNamn = '';
+  let kursFolder = '';
+  let elevNum = 0;
+  ipcMain.on('exportPDF', function(event, kursData) {
+    localPath = kursData.localPath;
+    kursNamn = kursData.kurs.namn;
+    gruppNamn = kursData.kurs.grupp;
+    kursFolder = localPath + '/' + kursNamn + ' - ' + gruppNamn;
+    if (!fs.existsSync(kursFolder)) {fs.mkdirSync(kursFolder)};
+
+    for (i in kursData.kurs.elever) {
+      let elevFolder = kursFolder + '/' + kursData.kurs.elever[i].namn;
+      if (!fs.existsSync(elevFolder)) {fs.mkdirSync(elevFolder)};
+    }
+    elevNum = kursData.kurs.elever.length;
+    exportWindow.send('toPDF', kursData.kurs);
+  })
+
+
+  let pdfSettings = {
+        landscape: false,
+        marginsType: 0,
+        printBackground: true,
+        printSelectionOnly: false,
+        pageSize: "A4"
+  };
+  ipcMain.on('print', function(event, filename, percentage) {
+    var file = kursFolder + '/' + filename;
+    exportWindow.webContents.printToPDF(pdfSettings, function(err, data) {
+      if (err) {
+          console.error(err)
+         return;
+      }
+      try {
+          fs.writeFileSync(file, data);
+          mainWindow.send('progress', percentage);
+          exportWindow.send('next', 'next');
+      } catch(err) {
+          console.error(err);
+      }
+    });
+  });
+  ipcMain.on('finished', function(event, arg) {
+    mainWindow.send('klart', 'klart');
+  })
+});
+
+
+
+
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
@@ -55,3 +134,33 @@ app.on('activate', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+/*
+ipcMain.on('exportPDF', function(event, kursData) {
+  exportWindow.webContents.send('toPDF', kursData.kurs);
+  var folder = kursData.localPath + '/' + kursData.kurs.namn;
+  if (!fs.existsSync(folder)) {fs.mkdirSync(folder)};
+  var filename = folder + '/' + kursData.kurs.namn+'.pdf';
+  var pdfSettings = {
+          landscape: true,
+          marginsType: 0,
+          printBackground: true,
+          printSelectionOnly: false,
+          pageSize: "A4"
+  };
+
+
+  exportWindow.webContents.printToPDF(pdfSettings, function(err, data) {
+      if (err) {
+          console.error(err)
+          return;
+      }
+      try {
+          fs.writeFileSync(filename, data);
+      } catch(err) {
+          console.error(err);
+      }
+  });
+});
+*/
+
