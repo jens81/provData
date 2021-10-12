@@ -18,7 +18,7 @@
   "license": "CC0-1.0",
   "devDependencies": {
     "d3": "^5.9.4",
-    "electron": "^5.0.5"
+    "electron": "^11.5.0"
   },
   "dependencies": {}
 }
